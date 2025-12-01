@@ -20,6 +20,8 @@ public class Jabeja {
   private float T;
   private boolean resultFileCreated = false;
 
+  private boolean toAnneal = true;
+
   //-------------------------------------------------------------------
   public Jabeja(HashMap<Integer, Node> graph, Config config) {
     this.entireGraph = graph;
@@ -56,6 +58,16 @@ public class Jabeja {
       T = 1;
   }
 
+
+  /**
+   * Compute the acceptance probability
+   * 
+   */
+  private double computeAcceptance(double new_val, double old_val)
+  {
+    return Math.exp((new_val - old_val) / T);
+  }
+
   /**
    * Sample and swap algorith at node p
    * @param nodeId
@@ -87,7 +99,40 @@ public class Jabeja {
     Node bestPartner = null;
     double highestBenefit = 0;
 
-    // TODO
+    // TO BE CHECKED AND FINISHED
+    for(Integer q: nodes){
+      Node nodeq = entireGraph.get(q);
+      //Computing actual utility
+      int degreeQQ = getDegree(nodep, nodep.getColor());
+      int degreePP = getDegree(nodeq, nodeq.getColor());
+      double old_d = Math.pow(degreePP, config.getAlpha())+Math.pow(degreeQQ, config.getAlpha());
+
+      //Computing utility after hypothetical swap
+      int degree_pq = getDegree(nodep, nodeq.getColor());
+      int degree_qp = getDegree(nodeq, nodep.getColor());
+      double new_d = Math.pow(degree_pq, config.getAlpha())+Math.pow(degree_qp, config.getAlpha());
+
+      if(toAnneal)
+      {
+        Random random = new Random();
+        double prob = random.nextDouble();
+        double acceptance = computeAcceptance(new_d,old_d);
+        // Check this in order to avoid having a 100% acceptance rate (convergence)
+        if (new_d != old_d  && acceptance > prob && acceptance > highestBenefit) {
+          bestPartner = nodeq;
+          highestBenefit = acceptance;
+        }
+      }
+      else
+      {
+        if(new_d * T > old_d && new_d > highestBenefit) {
+        bestPartner = nodeq;
+        highestBenefit = new_d;
+        }
+      }
+
+
+    }
 
     return bestPartner;
   }
