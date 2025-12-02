@@ -26,6 +26,9 @@ public class Jabeja {
   private int reset_rounds = 0;
   private double MAX_T;
 
+  //Useful for find partner
+  private static final Random rand = new Random();
+
 
   //-------------------------------------------------------------------
   public Jabeja(HashMap<Integer, Node> graph, Config config) {
@@ -164,8 +167,7 @@ public class Jabeja {
 
       if(toAnneal)
       {
-        Random random = new Random();
-        double prob = random.nextDouble();
+        double prob = rand.nextDouble();
         double acceptance = computeAcceptance(new_d,old_d);
         // Check this in order to avoid having a 100% acceptance rate (convergence)
         if (new_d != old_d  && acceptance > prob && acceptance > highestBenefit) {
