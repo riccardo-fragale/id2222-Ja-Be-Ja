@@ -17,10 +17,15 @@ public class Jabeja {
   private final List<Integer> nodeIds;
   private int numberOfSwaps;
   private int round;
-  private float T;
+  private double T;
   private boolean resultFileCreated = false;
 
   private boolean toAnneal = true;
+  private int exp_round = 0;
+  private final double MIN_T = Math.pow(10, -4);
+  private int reset_rounds = 0;
+  private double MAX_T;
+
 
   //-------------------------------------------------------------------
   public Jabeja(HashMap<Integer, Node> graph, Config config) {
@@ -29,7 +34,16 @@ public class Jabeja {
     this.round = 0;
     this.numberOfSwaps = 0;
     this.config = config;
-    this.T = config.getTemperature();
+    if(this.toAnneal)
+    {
+      this.T = 1;
+      this.MAX_T = 1;
+      config.setDelta((float) 0.9);
+    }
+    else
+    {
+      this.T = config.getTemperature();
+    }
   }
 
 
@@ -52,10 +66,36 @@ public class Jabeja {
    */
   private void saCoolDown(){
     // TODO for second task
-    if (T > 1)
-      T -= config.getDelta();
-    if (T < 1)
-      T = 1;
+    if(toAnneal)
+    {
+      exp_round ++;
+      T *= config.getDelta();
+      if (T < MIN_T) {
+        T = MIN_T;
+      }
+      if(T == MIN_T)
+      {
+        reset_rounds ++;
+        if(reset_rounds == 400)
+        {
+          T = 1;
+          reset_rounds = 0;
+          exp_round = 0;
+        }
+      }
+
+    }
+    else
+    {
+      if(T>1)
+      {
+        T -= config.getDelta();
+        if(T<1)
+        {
+          T = 1;  
+        }
+      }
+    }
   }
 
 
