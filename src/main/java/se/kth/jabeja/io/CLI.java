@@ -29,16 +29,16 @@ public class CLI {
   private int UNIFORM_RAND_SAMPLE_SIZE = 6;
 
   @Option(name = "-temp", usage = "Simulated annealing temperature.")
-  private float TEMPERATURE = 2;
+  private Double TEMPERATURE = 2.0;
 
   @Option(name = "-delta", usage = "Simulated annealing delta.")
-  private float DELTA = (float) 0.003;
+  private Float DELTA = 0.003f;
 
   @Option(name = "-seed", usage = "Seed.")
   private int SEED = 0;
 
   @Option(name = "-alpha", usage = "Alpah parameter")
-  private float ALPHA = 2;
+  private Float ALPHA = 2f;
 
   @Option(name = "-randNeighborsSampleSize", usage = "Number of random neighbors sample size.")
   private int randNeighborsSampleSize = 3;

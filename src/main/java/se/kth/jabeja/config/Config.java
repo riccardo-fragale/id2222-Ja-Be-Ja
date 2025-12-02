@@ -4,7 +4,7 @@ public class Config {
   private Integer numPartitions;
   private Integer rounds;
   private Integer randomNeighborsSampleSize;
-  private Float temperature;
+  private Double temperature;
   private Float delta;
   private Integer seed;
   private Integer uniformRandomSampleSize;
@@ -54,7 +54,7 @@ public class Config {
     return this;
   }
 
-  public Config setTemperature(Float temperature) {
+  public Config setTemperature(Double temperature) {
     this.temperature = temperature;
     return this;
   }
@@ -95,7 +95,7 @@ public class Config {
     return randomNeighborsSampleSize;
   }
 
-  public Float getTemperature() {
+  public Double getTemperature() {
     if (temperature == null) {
       throw new NullPointerException("Temperature is not set");
     }
