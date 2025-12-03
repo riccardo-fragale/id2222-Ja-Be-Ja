@@ -20,7 +20,6 @@ public class Jabeja {
   private double T;
   private boolean resultFileCreated = false;
 
-  private boolean toAnneal = true;
   private int exp_round = 0;
   private final double MIN_T = Math.pow(10, -4);
   private int reset_rounds = 0;
@@ -30,6 +29,10 @@ public class Jabeja {
   private static final Random rand = new Random();
 
 
+  //Separate annealing mode selection
+  boolean useOriginalSimulatedAnnealing = true;
+
+
   //-------------------------------------------------------------------
   public Jabeja(HashMap<Integer, Node> graph, Config config) {
     this.entireGraph = graph;
@@ -37,15 +40,18 @@ public class Jabeja {
     this.round = 0;
     this.numberOfSwaps = 0;
     this.config = config;
-    if(this.toAnneal)
+
+    //Another place where to store the annealing
+    this.useOriginalSimulatedAnnealing = true;
+    if(this.useOriginalSimulatedAnnealing)
+    {
+      this.T = config.getTemperature();
+    }
+    else
     {
       this.T = 1;
       this.MAX_T = 1;
       config.setDelta((float) 0.9);
-    }
-    else
-    {
-      this.T = config.getTemperature();
     }
   }
 
@@ -82,6 +88,7 @@ public class Jabeja {
         if(reset_rounds == 400)
         {
           T = 1;
+          // T = MAX_T to reheat (to be tested)
           reset_rounds = 0;
           exp_round = 0;
         }
@@ -101,15 +108,6 @@ public class Jabeja {
     }
   }
 
-
-  /**
-   * Compute the acceptance probability
-   * 
-   */
-  private double computeAcceptance(double new_val, double old_val)
-  {
-    return Math.exp((new_val - old_val) / T);
-  }
 
   /**
    * Sample and swap algorith at node p
@@ -158,28 +156,28 @@ public class Jabeja {
       //Computing actual utility
       int degreeQQ = getDegree(nodep, nodep.getColor());
       int degreePP = getDegree(nodeq, nodeq.getColor());
-      double old_d = Math.pow(degreePP, config.getAlpha())+Math.pow(degreeQQ, config.getAlpha());
+      double oldU = Math.pow(degreePP, config.getAlpha())+Math.pow(degreeQQ, config.getAlpha());
 
       //Computing utility after hypothetical swap
-      int degree_pq = getDegree(nodep, nodeq.getColor());
-      int degree_qp = getDegree(nodeq, nodep.getColor());
-      double new_d = Math.pow(degree_pq, config.getAlpha())+Math.pow(degree_qp, config.getAlpha());
+      int degreePQ = getDegree(nodep, nodeq.getColor());
+      int degreeQP = getDegree(nodeq, nodep.getColor());
+      double newU = Math.pow(degreePQ, config.getAlpha())+Math.pow(degreeQP, config.getAlpha());
 
-      if(toAnneal)
+      if(useOriginalSimulatedAnnealing)
       {
-        double prob = rand.nextDouble();
-        double acceptance = computeAcceptance(new_d,old_d);
-        // Check this in order to avoid having a 100% acceptance rate (convergence)
-        if (new_d != old_d  && acceptance > prob && acceptance > highestBenefit) {
-          bestPartner = nodeq;
-          highestBenefit = acceptance;
+        double U = (newU * T) - oldU;
+        if (U > highestBenefit) {
+            highestBenefit = U;
+            bestPartner = nodeq;
         }
       }
       else
       {
-        if(new_d * T > old_d && new_d > highestBenefit) {
-        bestPartner = nodeq;
-        highestBenefit = new_d;
+        double prob = Math.random();
+        double acceptance = Math.exp((newU-oldU)/T);
+        if (acceptance > prob && acceptance > highestBenefit) {
+            highestBenefit = acceptance;
+            bestPartner = nodeq;
         }
       }
 
