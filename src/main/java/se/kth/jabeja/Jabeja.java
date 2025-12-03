@@ -71,40 +71,35 @@ public class Jabeja {
   }
 
   /**
-   * Simulated analealing cooling function
+   * Simulated annalealing cooling function
    */
   private void saCoolDown(){
     // TODO for second task
-    if(toAnneal)
+    if(useOriginalSimulatedAnnealing)
     {
-      exp_round ++;
-      T *= config.getDelta();
-      if (T < MIN_T) {
-        T = MIN_T;
-      }
-      if(T == MIN_T)
-      {
-        reset_rounds ++;
-        if(reset_rounds == 400)
+      T = T - config.getDelta();
+        if (T < 1) 
         {
           T = 1;
-          // T = MAX_T to reheat (to be tested)
-          reset_rounds = 0;
-          exp_round = 0;
         }
-      }
-
     }
     else
     {
-      if(T>1)
-      {
-        T -= config.getDelta();
-        if(T<1)
-        {
-          T = 1;  
+      T *= config.getDelta();
+
+        if (T < MIN_T)
+          {
+            T = MIN_T;
+          }
+
+        if (T == MIN_T) {
+            reset_rounds++;
+            if (reset_rounds >= 400) {
+                T = 1; 
+                // T = 2 REHEATING
+                reset_rounds = 0;
+            }
         }
-      }
     }
   }
 
